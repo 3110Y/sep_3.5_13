@@ -21,12 +21,11 @@ func (s SearchValueForZip) String() string {
 	if err := filepath.Walk(s.root, s.searchZip); err != nil {
 		panic(fmt.Sprintf("Какая-то ошибка Хождения: %v\n", err))
 	}
-	fmt.Print("String " + s.fileZip)
 	s.unzip()
 	return s.value
 }
 
-func (s SearchValueForZip) searchZip(path string, info os.FileInfo, err error) error {
+func (s *SearchValueForZip) searchZip(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		return err // Если по какой-то причине мы получили ошибку, проигнорируем эту итерацию
 	}
@@ -38,17 +37,20 @@ func (s SearchValueForZip) searchZip(path string, info os.FileInfo, err error) e
 		s.fileZip = path
 		fmt.Print("searchZip " + s.fileZip)
 	}
+	fmt.Println("searchZip " + s.fileZip)
 	return nil
 }
 
-func (s SearchValueForZip) unzip() {
+func (s *SearchValueForZip) unzip() {
 	fileZip, err := zip.OpenReader(s.fileZip)
 	if err != nil {
 		panic(fmt.Sprintf("Какая-то ошибка zip: %v\n", err))
 	}
 	defer fileZip.Close()
 	for _, file := range fileZip.File {
-		fmt.Printf("Contents of %s:\n", file.Name)
+		if strings.Contains(file.Name, ".txt") {
+			fmt.Printf("Contents of %s:\n", file.Name)
+		}
 	}
 }
 
