@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
@@ -112,6 +113,24 @@ func (s *SearchValueForZip) findCSV(path string, info os.FileInfo, err error) er
 }
 
 func (s *SearchValueForZip) parseCSV(file string) error {
+	f, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	r := csv.NewReader(f)
+	data, err := r.ReadAll()
+	if err != nil {
+		return err
+	}
+	i := 1
+	for _, row := range data {
+		if len(row) > 1 && i == 5 {
+			s.value = row[2]
+			return nil
+		}
+		i++
+	}
 	return nil
 }
 
